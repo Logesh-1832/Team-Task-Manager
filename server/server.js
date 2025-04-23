@@ -18,6 +18,40 @@ app.get('/projects', async (req, res) => {
   }
 });
 
+//Get all tasks
+app.get('/tasks', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM tasks ORDER BY id ASC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error executing query', err.stack);
+    res.status(500).send('Database error');
+  }
+});
+
+//Create new task
+app.post('/task', async (req, res) => {
+  const { title, description, status , priority , projectid} = req.body;
+
+  if (!title || !status) {
+    return res.status(400).json({ error: 'Name and status are required' });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO tasks (title, description, status , priority , projectid)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [title, description, status , priority , projectid]
+    );
+
+    res.status(201).json(result.rows[0]); 
+  } catch (err) {
+    console.error('Error inserting project', err.stack);
+    res.status(500).send('Database error');
+  }
+});
+
 //Create new project
 app.post('/project', async (req, res) => {
   const { name, description, status } = req.body;
@@ -70,6 +104,34 @@ app.put('/project/:id', async (req, res) => {
   }
 });
 
+//Update existing task
+app.put('/task/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, description, status , priority , projectid} = req.body;
+
+  if (!title || !status) {
+    return res.status(400).json({ error: 'Name and status are required' });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE tasks
+       SET title = $1, description = $2, status = $3, priority = $4, projectid = $5
+       WHERE id = $6
+       RETURNING *`,
+      [title, description, status, priority , projectid, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating project', err.stack);
+    res.status(500).send('Database error');
+  }
+});
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
