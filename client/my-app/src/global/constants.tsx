@@ -1,5 +1,5 @@
 export class GlobalContants {
 
-    public url = 'https://localhost:3000/'
+    public static BaseURL: string = "https://localhost:3000/";
 
 }
