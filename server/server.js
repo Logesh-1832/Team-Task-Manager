@@ -7,13 +7,65 @@ const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 
-
-app.get('/data', async (req, res) => {
+//Get all projects
+app.get('/projects', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM customers');
+    const result = await pool.query('SELECT * FROM projects ORDER BY id ASC');
     res.json(result.rows);
   } catch (err) {
     console.error('Error executing query', err.stack);
+    res.status(500).send('Database error');
+  }
+});
+
+//Create new project
+app.post('/project', async (req, res) => {
+  const { name, description, status } = req.body;
+
+  if (!name || !status) {
+    return res.status(400).json({ error: 'Name and status are required' });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO projects (name, description, status)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [name, description, status]
+    );
+
+    res.status(201).json(result.rows[0]); 
+  } catch (err) {
+    console.error('Error inserting project', err.stack);
+    res.status(500).send('Database error');
+  }
+});
+
+//Update existing Project
+app.put('/project/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, description, status } = req.body;
+
+  if (!name || !status) {
+    return res.status(400).json({ error: 'Name and status are required' });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE projects
+       SET name = $1, description = $2, status = $3
+       WHERE id = $4
+       RETURNING *`,
+      [name, description, status, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    console.error('Error updating project', err.stack);
     res.status(500).send('Database error');
   }
 });
@@ -22,7 +74,5 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
-app.use(cors({
-    origin: 'http://localhost:5173',
-}));
+
   
