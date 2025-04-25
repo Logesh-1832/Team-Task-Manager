@@ -67,68 +67,39 @@ function Task() {
 
     return (
         <>
-            <h1>Tasks</h1> <button type="submit" onClick={openPopup}>Add User</button>
+        <div className="flex justify-end mb-4">
+          <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300" >
+             Add
+            </button>
+        </div>
+        <div className="overflow-x-auto">
+        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead className="bg-blue-600 text-white">
+            <tr>
+                <th className="text-left py-3 px-6">Name</th>
+                <th className="text-left py-3 px-6">Description</th>
+                <th className="text-left py-3 px-6">Status</th>
+                <th className="text-left py-3 px-6">Actions</th>
+            </tr>
+            </thead>
+            <tbody className="text-gray-700">
+            {tasks.map((task, index) => (
+                 <tr className="border-b hover:bg-gray-100" key={index}>
+                 <td className="py-3 px-6">{task.title}</td>
+                 <td className="py-3 px-6">{task.description}</td>
+                 <td className="py-3 px-6">
+                 <span className="bg-green-100 text-green-800 text-sm px-2 py-1 rounded-full">{task.status}</span>
+                 </td>
+                 <td className="py-3 px-6 space-x-2">
+                 <button className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Edit</button>
+                 <button className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Delete</button>
+                 </td>
+             </tr>
+            ))}
+            </tbody>
+        </table>
+        </div>
 
-            {isPopupOpen && (
-                <Popup>
-                    <div>
-                        <form onSubmit={handleSubmit}>
-                            <input
-                                type="text"
-                                placeholder="Project Name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
-                            />
-                            <br />
-                            <textarea
-                                placeholder="Description"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                            />
-                            <br />
-                            <select value={status} onChange={(e) => setStatus(e.target.value)} required>
-                                <option value="active">Active</option>
-                                <option value="completed">Completed</option>
-                            </select>
-                            <br />
-                            <button type="submit">Add User</button>
-                            <button className="close-btn" onClick={closePopup}>Close</button>
-                        </form>
-                    </div>
-                </Popup>
-            )}
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>id</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Priority</th>
-                        <th>Project</th>
-                        <th>Created Date</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tasks.map((task, index) => (
-                        <tr key={index}>
-                            <td>{task.id}</td>
-                            <td>{task.title}</td>
-                            <td>{task.description}</td>
-                            <td>{task.status}</td>
-                            <td>{task.priority}</td>
-                            <td>{task.projectid}</td>
-                            <td>{task.createdat}</td>
-                            <td onClick={() => isEditpop(task.id)}>Edit</td>
-                            <td>Delete</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
         </>
     );
 }
