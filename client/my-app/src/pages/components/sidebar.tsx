@@ -10,11 +10,7 @@ function Sidebar() {
         <Link to="/project" className="hover:bg-gray-700 p-2 rounded">Project</Link>
         <Link to="/task" className="hover:bg-gray-700 p-2 rounded">Task</Link>
         {/* <Link to="/completed" className="hover:bg-gray-700 p-2 rounded">Completed Tasks</Link>
-        <Link to="/pending" className="hover:bg-gray-700 p-2 rounded">Pending Tasks</Link>
-        <Link to="/in-progress" className="hover:bg-gray-700 p-2 rounded">In Progress Tasks</Link>
-        <Link to="/deployed" className="hover:bg-gray-700 p-2 rounded">Deployed Tasks</Link>
-        <Link to="/deferred" className="hover:bg-gray-700 p-2 rounded">Deferred Tasks</Link>
-        <Link to="/add-task" className="hover:bg-gray-700 p-2 rounded">Add New Tasks</Link>
+
         <Link to="/task-stat" className="hover:bg-gray-700 p-2 rounded">Task Stat</Link> */}
       </nav>
     </div>

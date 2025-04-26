@@ -2,12 +2,9 @@ import Popup from "./popup";
 
 function Card({ items, onClick}) {
   
-  const handleClick = () => {
-    return <Popup item = {items }></Popup>
-  };
 
   return (
-      <div onClick={handleClick} className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition-all w-full max-w-sm">
+      <div onClick={onClick} className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition-all w-full max-w-sm">
         <h3 className="text-xl font-semibold mb-2 text-gray-800">{items.name}</h3>
         <p className="text-gray-600 mb-4">{items.description}</p>
         {/* <p className="text-gray-600 mb-4">{items.createdat}</p> */}

@@ -132,6 +132,33 @@ app.put('/task/:id', async (req, res) => {
     res.status(500).send('Database error');
   }
 });
+
+//GET by ID
+app.get('/projects/:id', async (req, res) => {
+  const projectId = req.params.id;
+
+  try {
+    // Get project details
+    const projectResult = await pool.query('SELECT * FROM projects WHERE id = $1', [projectId]);
+
+    if (projectResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    const project = projectResult.rows[0];
+
+    // Get tasks related to the project
+    const tasksResult = await pool.query('SELECT * FROM tasks WHERE projectId = $1', [projectId]);
+
+    project.tasks = tasksResult.rows;
+
+    res.json(project);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

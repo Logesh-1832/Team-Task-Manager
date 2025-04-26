@@ -1,107 +1,112 @@
 import React, { SetStateAction, useEffect, useState } from 'react';
 import { GlobalContants } from '../../global/constants';
-import Popup from '../Modules/Components/popup';
+import Popup from '../components/popup';
+import { useLocation  } from 'react-router-dom';
 import './task.css'
+import { getData, getDataByID, postData } from '../../services/api';
+import Table from '../components/table';
+import Form from '../components/form';
 
 function Task() {
-    const [tasks, setProjects] = useState([]);
-    const [isEdit, setPost] = useState(false);
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [status, setStatus] = useState('active');
-    const [isPopupOpen, setIsPopupOpen] = useState(false)
-    // const [isEditpop, isEditPopup] = useState(false)
+    const [tasks, setTasks] = useState([]);
+    const [projects, setProjects] = useState([]);
+    const [taskByID, setTaskId] = useState({});
+    const [id, setId] = useState("");
+    const [isAddNewPopupOpen, setIsAddNewPopupOpen] = useState(false);
+    const [isAddNew, setIsAddNew] = useState(false);
 
-    const [editID, setProjectId] = useState('')
+    async function loadAllTasks() {
+        try {
+          const c = await getData(`tasks`);
+          setTasks(c);
+        } catch (error) {
+          console.error('Error loading projects:', error);
+        }
+      }
+      useEffect(() => {
+        loadAllTasks();
+    }, []);
+    
+    const handleAddClick = () => {
+      setIsAddNew(true);
+      setIsAddNewPopupOpen(true);
+    };  
 
-    //const url = GlobalContants.BaseURL + 'users'; 
-
-    const isEditpop = (id: SetStateAction<string>) => {
-        setProjectId(id);
-        setIsPopupOpen(true)
-        post()
-    }
-    const closePopup = () => setIsPopupOpen(false)
-    const post = () => setPost(true)
-
-    const openPopup = () => setIsPopupOpen(true)
-
-    //Get tasks
-    useEffect(() => {
-        fetch('http://localhost:3000/tasks')
-            .then(response => response.json())
-            .then(data => setProjects(data))
-            .catch(error => console.error('Error fetching data:', error));
+    async function loadAllProjects() {
+        try {
+          const b = await getData(`projects`);
+          setProjects(b);
+        } catch (error) {
+          console.error('Error loading projects:', error);
+        }
+      }
+      useEffect(() => {
+        loadAllProjects();
     }, []);
 
-
-    //Post task
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const taskID = editID;
-        const newProject = { name, description, status };
-        try {
-            const response = await fetch(isEdit ? `http://localhost:3000/task/${taskID}` : 'http://localhost:3000/task', {
-                method: isEdit ? 'PUT' : 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newProject),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                alert('Project added successfully!');
-                // Optionally reset the form
-                setName('');
-                setDescription('');
-                setStatus('active');
-            } else {
-                alert(data.error || 'Failed to create task');
-            }
+    async function taskById(id:any) {
+        try { 
+          const a = await getDataByID(`projects/${id}`);
+          setTaskId(a);
         } catch (error) {
-            console.error('Error creating task:', error);
+          console.error('Error loading projects:', error);
         }
-    };
+      }
 
+      useEffect(() => {
+        if(id !== "All")
+        taskById(id);
+    }, [id]);
+
+    const  handlePopupSubmit = async (data: any) => {
+      try {
+        await postData('task', data);
+        taskById(id);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+    
     return (
         <>
-        <div className="flex justify-end mb-4">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300" >
-             Add
-            </button>
-        </div>
-        <div className="overflow-x-auto">
-        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-            <thead className="bg-blue-600 text-white">
-            <tr>
-                <th className="text-left py-3 px-6">Name</th>
-                <th className="text-left py-3 px-6">Description</th>
-                <th className="text-left py-3 px-6">Status</th>
-                <th className="text-left py-3 px-6">Actions</th>
-            </tr>
-            </thead>
-            <tbody className="text-gray-700">
-            {tasks.map((task, index) => (
-                 <tr className="border-b hover:bg-gray-100" key={index}>
-                 <td className="py-3 px-6">{task.title}</td>
-                 <td className="py-3 px-6">{task.description}</td>
-                 <td className="py-3 px-6">
-                 <span className="bg-green-100 text-green-800 text-sm px-2 py-1 rounded-full">{task.status}</span>
-                 </td>
-                 <td className="py-3 px-6 space-x-2">
-                 <button className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Edit</button>
-                 <button className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Delete</button>
-                 </td>
-             </tr>
-            ))}
-            </tbody>
-        </table>
-        </div>
+            <div className="flex justify-end items-center gap-4 mb-4">
+            <div className="w-48">
+                <label className="block text-gray-700 font-medium mb-1">Status</label>
+                <select
+                    value={id}
+                    onChange={(e) => setId(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                    >
+                    <option value="All">All</option>
+                    {projects.map((project, index) => (
+                    <option key={index} value={project.id}>{project.name}</option>
+                    ))}            
+                </select>
+            </div>
 
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300" onClick={handleAddClick}>
+                Add
+            </button>
+            </div>
+
+            { id === "" || id === "All" ? (
+              <Table tasks={tasks} page= "Task" projectNames = {projects}/>
+            ) : (
+              <Table tasks={taskByID?.tasks || []}  page= "Task" projectNames = {projects}/>
+            )}
+           {isAddNewPopupOpen && isAddNew && (
+            <Popup closePopup={function () { setIsAddNewPopupOpen(false); }}>
+              <Form
+              onSubmit={handlePopupSubmit}
+            closePopup={function () { setIsAddNewPopupOpen(false); }} page= "Task" projectNames = {projects}
+              />
+            </Popup>
+            )}
         </>
     );
 }
 
 export default Task;
+
+
