@@ -1,7 +1,7 @@
 // App.js
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from '../src/pages/Modules/Components/sidebar';
-import Dashboard from './pages/Modules/Components/dashboard';
+import Sidebar from '../src/pages/components/sidebar';
+import Dashboard from '../src/pages/models/dashboard';
 import Project from './pages/project/project';
 import Task from './pages/task/task';
 // import other pages here

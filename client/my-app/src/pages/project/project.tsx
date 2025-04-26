@@ -1,26 +1,39 @@
 import { useState, useEffect, SetStateAction } from 'react';
 import { getData, postData } from '../../services/api';
-import Card from '../Modules/Components/card';
-import Popup from '../Modules/Components/popup';
+import Card from '../components/card';
+import Form from '../components/form';
+import Popup from '../components/popup';
+import ViewDetails from '../models/Viewdetails';
 
 function Project() {
   const [projects, setProjects] = useState<any[]>([]);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isAddNewPopupOpen, setIsAddNewPopupOpen] = useState(false);
+  const [isViewDetailsPopupOpen, setIsViewDetailsPopupOpen] = useState(false);
+  const [isViewDetails, setIsViewDetails] = useState(false);
+  const [isAddNew, setIsAddNew] = useState(false);
+
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const handleAddClick = () => {
-    setIsPopupOpen(true);
+    setIsAddNew(true);
+    setIsAddNewPopupOpen(true);
   };
+
+  const viewDetails = (item: any) =>{
+    setIsViewDetails(true);
+    setSelectedProject(item);
+    setIsViewDetailsPopupOpen(true);
+  }
 
   const  handlePopupSubmit = async (data: any) => {
     try {
-      const response = await postData('project', data);
+      await postData('project', data);
       loadProjects();
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
-   
     async function loadProjects() {
       try {
         const projectsData = await getData('projects');
@@ -30,9 +43,10 @@ function Project() {
       }
     }
 
-    loadProjects();
-  
-
+    useEffect(() => {
+      loadProjects();
+    }, []);
+    
   return (
     <>
     <div className="p-6">
@@ -43,10 +57,26 @@ function Project() {
        </div>
       <div className="flex flex-wrap gap-6">
       {projects.map((project, index) => (
-      <Card key={index} items={project} />
+      <Card key={index} items={project} onClick={() => viewDetails(project)}/>
        ))}
       </div>
-      {isPopupOpen && <Popup closePopup={() => setIsPopupOpen(false)} onSubmit={handlePopupSubmit}/>}
+      <div>
+      {isAddNewPopupOpen && isAddNew && (
+        <Popup closePopup={function () { setIsAddNewPopupOpen(false); }}>
+          <Form
+            onSubmit={handlePopupSubmit}
+            closePopup={function () { setIsAddNewPopupOpen(false); }} page= "Project"
+          />
+        </Popup>
+      )}
+      </div>
+        <div>
+        {isViewDetails && isViewDetailsPopupOpen && selectedProject && (
+        <Popup closePopup={function () { setIsViewDetailsPopupOpen(false); }}>
+        <ViewDetails project={selectedProject} page= "Project"/>
+        </Popup>
+       )}
+      </div>
     </div>
     </>
   );

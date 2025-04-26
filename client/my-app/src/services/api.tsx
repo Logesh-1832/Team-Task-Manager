@@ -6,6 +6,12 @@ export async function getData(endpoint: any) {
     return await response.json();
 }
 
+export async function getDataByID(endpoint: any) {
+    const response = await fetch(`${BASE_URL}/${endpoint}`);
+    if (!response.ok) throw new Error('GET request failed');
+    return await response.json();
+}
+
 export async function postData(endpoint: any, payload: any) {
     const response = await fetch(`${BASE_URL}/${endpoint}`, {
         method: 'POST',
